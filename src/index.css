@@ -1,13 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  background: hsla(349, 94%, 21%, 1);
+
+  background: linear-gradient(
+    180deg,
+    hsla(349, 94%, 21%, 1) 0%,
+    hsla(301, 68%, 13%, 1) 93%
+  );
+
+  background: -moz-linear-gradient(
+    180deg,
+    hsla(349, 94%, 21%, 1) 0%,
+    hsla(301, 68%, 13%, 1) 93%
+  );
+
+  background: -webkit-linear-gradient(
+    180deg,
+    hsla(349, 94%, 21%, 1) 0%,
+    hsla(301, 68%, 13%, 1) 93%
+  );
+
+  filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#6A0316", endColorstr="#390B38", GradientType=1 );
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
