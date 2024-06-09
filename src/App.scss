@@ -1,3 +1,142 @@
 .App {
   text-align: center;
+
+  /* For Chrome, Safari, Opera, and Edge  */
+  // input[type="range"]::-webkit-slider-runnable-track {
+  //   outline: none;
+  //   border: none;
+  //   border-radius: 5px;
+  // }
+
+  // input[type="range"]::-webkit-slider-thumb {
+  //   background-color: red;
+  //   color: black;
+  // }
+
+  // /* For Firefox */
+  // input[type="range"]::-moz-range-track {
+  //   background: rgb(45, 46, 45);
+  // }
+
+  // input[type="range"]::-moz-range-thumb {
+  //   color: rgb(45, 46, 45);
+  // }
 }
+
+.app-bg {
+  background-color: rgb(20, 0, 0);
+}
+
+.btn--hover {
+  padding: 0.8rem;
+  border-radius: 50%;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn--hover:hover {
+  background-color: rgba(105, 54, 54, 0.24);
+  padding: 0.8rem;
+  border-radius: 50%;
+}
+
+.repeatAll,
+.repeatOne,
+.shuffled {
+  background-color: rgba(105, 54, 54, 0.24);
+}
+
+// input[type="range"] {
+//   -webkit-appearance: none;
+// }
+
+// input[type="range"]::-webkit-slider-runnable-track {
+//   background: rgb(22, 21, 21);
+// }
+
+input[type="range"] {
+  -webkit-appearance: none;
+  background-color: #3b3939;
+  height: 2px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  background: #636060;
+  margin-top: -1px;
+}
+
+.app--button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 4px;
+  background-color: rgb(61, 1, 1);
+  font-size: small;
+
+  &:hover {
+    background-color: rgba(61, 1, 1, 0.781);
+  }
+}
+
+.bar--animation {
+  width: 2rem;
+  height: 2rem;
+  .playing {
+    border-radius: 0.3rem;
+    background: rgba(156, 149, 149, 0.363);
+    padding: 0.5rem;
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .playing__bar {
+    display: inline-block;
+    background: rgb(58, 1, 1);
+    width: 30%;
+    height: 100%;
+    animation: up-and-down 1.3s ease infinite alternate;
+  }
+
+  .playing__bar1 {
+    height: 60%;
+  }
+
+  .playing__bar2 {
+    height: 30%;
+    animation-delay: -2.2s;
+  }
+
+  .playing__bar3 {
+    height: 75%;
+    animation-delay: -3.7s;
+  }
+
+  @keyframes up-and-down {
+    10% {
+      height: 30%;
+    }
+
+    30% {
+      height: 100%;
+    }
+
+    60% {
+      height: 50%;
+    }
+
+    80% {
+      height: 75%;
+    }
+
+    100% {
+      height: 60%;
+    }
+  }
+}
+
+/* for ie */
