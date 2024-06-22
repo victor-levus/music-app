@@ -23,24 +23,30 @@ const MusicApp = () => {
   const playBtn = useRef()?.current;
   const pauseBtn = useRef()?.current;
   const nextBtn = useRef()?.current;
-  const repeatBtn = useRef();
+  const currentPlayingTime = useRef();
 
   const [songData, setSongData] = useState([]);
   const [songs, setSongs] = useState();
   const [currentSongIndex, setCurrentSongIndex] = useState(0);
   const [songPlaying, setSongPlaying] = useState("");
   const [playMode, setPlayMode] = useState("stop");
-  const [seekValue, setSeekValue] = useState(0);
   const [repeatMode, setRepeatMode] = useState("repeatOff");
   const [showPlayer, setShowPlayer] = useState(false);
   const [isShuffled, setIsShuffled] = useState(false);
 
   const folderPath2 = "C:/Users/HP/Music";
-  const songTime = moment.duration(audioPlayer?.current?.duration, "seconds");
 
   useEffect(() => {
     getMetaData(folderPath2);
+
+    // eslint-disable-next-line
   }, []);
+
+  useEffect(() => {
+    console.log(audioPlayer?.current?.duration);
+
+    // eslint-disable-next-line
+  }, [playMode]);
 
   const openFolderDialog = async () => {
     try {
@@ -59,7 +65,7 @@ const MusicApp = () => {
       setPlayMode("stop");
       audioPlayer?.current?.pause();
       audioPlayer.current.currentTime = 0;
-      setSeekValue(0);
+
       setSongPlaying("");
       setIsShuffled(false);
     } catch (error) {
@@ -84,7 +90,8 @@ const MusicApp = () => {
           type: blobFile.type,
           path: file.path,
         });
-        jsmediatags.read(newFile, {
+
+        jsmediatags?.read(newFile, {
           onSuccess: (tag) => {
             data.push({ tags: tag.tags, file: file });
             setSongData([...data]);
@@ -103,25 +110,24 @@ const MusicApp = () => {
   };
 
   const playSong = (i) => {
-    try {
-      if (songs?.length > 0) {
+    if (songs?.length > 0) {
+      try {
         audioPlayer.current.src =
           songs[i != null ? i : currentSongIndex]?.file?.path ||
           songs[i != null ? i : currentSongIndex]?.path;
         audioPlayer.current.load();
+
         audioPlayer.current.play();
         setSongPlaying(songs[i != null ? i : currentSongIndex]);
-        sendPlayNotification(
-          "Now Playing..",
-          songs[i != null ? i : currentSongIndex]
-        );
         setPlayMode("playing");
-      }
+        startSongTimeCount();
 
-      // sendPlayNotification("Load Songs", "No Songs in the List");
-    } catch (error) {
-      setPlayMode("stop");
-      console.log(error);
+        // sendPlayNotification("Load Songs", "No Songs in the List");
+      } catch (error) {
+        setPlayMode("stop");
+        console.log(error);
+        nextFunc();
+      }
     }
   };
 
@@ -150,8 +156,8 @@ const MusicApp = () => {
       audioPlayer.current.play();
       setPlayMode("playing");
     } else if (playMode === "playing") {
-      audioPlayer.current.pause();
       setPlayMode("pause");
+      audioPlayer.current.pause();
     }
   };
 
@@ -165,7 +171,6 @@ const MusicApp = () => {
       if (currentSongIndex + 1 === songs?.length) {
         setPlayMode("stop");
         setCurrentSongIndex(0);
-        setSeekValue(0);
         setSongPlaying("");
         return;
       } else {
@@ -187,15 +192,53 @@ const MusicApp = () => {
   }
 
   function handleSeekChange(e) {
-    setSeekValue(e.target.value);
     audioPlayer.current.currentTime = e.target.value;
   }
 
-  function timeCount() {
-    return setInterval(() => {
-      setSeekValue(audioPlayer?.current?.currentTime);
-    }, 1000);
-  }
+  const startSongTimeCount = () => {
+    let currentTime = audioPlayer?.current?.currentTime;
+    let songDuration = audioPlayer?.current?.duration;
+    let seekElement = seekRange?.current;
+    let element = document.getElementById("current-playing-time");
+    let element2 = document.getElementById("current-playing-time2");
+    let element3 = document.getElementById("song--duration");
+
+    const seekValue =
+      moment.duration(currentTime, "seconds")._data.minutes * 60 +
+      moment.duration(currentTime, "seconds")._data.seconds;
+
+    const seekMaxValue =
+      moment.duration(songDuration, "seconds")._data.minutes * 60 +
+      moment.duration(songDuration, "seconds")._data.seconds;
+
+    const innerHtml = `${
+      parseInt(moment.duration(currentTime, "seconds")?._data.minutes) < 10
+        ? "0" + moment.duration(currentTime, "seconds")?._data.minutes
+        : moment.duration(currentTime, "seconds")?._data.minutes
+    }:${
+      parseInt(moment.duration(currentTime, "seconds")?._data.seconds) < 10
+        ? "0" + moment.duration(currentTime, "seconds")?._data.seconds
+        : moment.duration(currentTime, "seconds")?._data.seconds
+    }`;
+
+    const innerHtmlSongDuration = `${
+      parseInt(moment.duration(songDuration, "seconds")?._data.minutes) < 10
+        ? "0" + moment.duration(songDuration, "seconds")?._data.minutes
+        : moment.duration(songDuration, "seconds")?._data.minutes
+    }:${
+      parseInt(moment.duration(songDuration, "seconds")?._data.seconds) < 10
+        ? "0" + moment.duration(songDuration, "seconds")?._data.seconds
+        : moment.duration(songDuration, "seconds")?._data.seconds
+    }`;
+
+    if (playMode === "playing") {
+      seekElement.max = seekMaxValue;
+      seekElement.value = seekValue;
+      element.innerText = innerHtml;
+      element2.innerText = innerHtml;
+      element3.innerText = innerHtmlSongDuration;
+    }
+  };
 
   function handleSelectRepeat() {
     if (repeatMode === "repeatOff") {
@@ -224,14 +267,15 @@ const MusicApp = () => {
   // console.log(player);
   // console.log(seekRange?.current);
 
-  // setInterval(() => {
-  //   console.log("pill");
-  // }, 1000);
+  // console.log(playMode);
   // console.log(songCurrentTime);
   // console.log(songPlaying);
 
   // console.log(seekRange.current?.value);
 
+  // console.log(seekRange?.current);
+  // console.log(songDuration);
+  // console.log(audioPlayer?.current?.duration);
   return (
     <div className="p-3 h-screen relative overflow-hidden">
       <div className="music-dashboard overflow-hidden">
@@ -340,16 +384,22 @@ const MusicApp = () => {
               {playMode === "stop" || playMode === "pause" ? (
                 <button
                   ref={playBtn}
+                  id="play--btn"
                   className="flex justify-center items-center w-12 h-12 rounded-full bg-white text-black  play-control"
-                  onClick={playPauseFunc}
+                  onClick={() => {
+                    playPauseFunc();
+                  }}
                 >
                   <IoPlay className="ms-1" />
                 </button>
               ) : (
                 <button
+                  id="pause--btn"
                   ref={pauseBtn}
                   className="flex justify-center items-center w-12 h-12 rounded-full bg-white text-black  play-control"
-                  onClick={playPauseFunc}
+                  onClick={() => {
+                    playPauseFunc();
+                  }}
                 >
                   <IoPause className="" />
                 </button>
@@ -369,28 +419,8 @@ const MusicApp = () => {
             </div>
 
             {playMode === "playing" && (
-              <div className="song--time me-3 text-slate-300">
-                <span>
-                  {
-                    moment.duration(
-                      audioPlayer?.current?.currentTime,
-                      "seconds"
-                    )._data.minutes
-                  }
-                </span>
-                <span>:</span>
-                <span>
-                  {
-                    moment.duration(
-                      audioPlayer?.current?.currentTime,
-                      "seconds"
-                    )._data.seconds
-                  }
-                </span>
-                <span>/</span>
-                <span>
-                  {`${songTime._data.minutes}:${songTime._data.seconds}`}
-                </span>
+              <div className="song--time text-slate-300">
+                <span ref={currentPlayingTime} id="current-playing-time"></span>
               </div>
             )}
           </div>
@@ -414,7 +444,7 @@ const MusicApp = () => {
               }
               alt=""
               width={"100%"}
-              className="rounded-lg mb-2"
+              className="rounded-lg mb-2 h-[300px]"
             />
 
             {/* Current Song Playing title */}
@@ -439,42 +469,25 @@ const MusicApp = () => {
               id="seek-range"
               className="w-full "
               type="range"
-              // step={1}
               min={0}
               max={
-                moment.duration(audioPlayer?.current?.duration, "seconds")._data
-                  .minutes *
+                moment.duration(audioPlayer?.current?.duration, "seconds")
+                  ?._data.minutes *
                   60 +
-                moment.duration(audioPlayer?.current?.duration, "seconds")._data
-                  .seconds
-              }
-              value={
-                moment.duration(seekValue, "seconds")._data.minutes * 60 +
-                moment.duration(seekValue, "seconds")._data.seconds
+                moment.duration(audioPlayer?.current?.duration, "seconds")
+                  ?._data.seconds
               }
               onChange={handleSeekChange}
             />
 
             <div className="flex justify-between text-xs text-slate-400 h-5">
-              <p>
-                {playMode !== "stop" &&
-                  moment.duration(audioPlayer?.current?.currentTime, "seconds")
-                    ._data.minutes +
-                    ":" +
-                    moment.duration(
-                      audioPlayer?.current?.currentTime,
-                      "seconds"
-                    )._data.seconds}
-              </p>
-              <p>
-                {playMode !== "stop" &&
-                  `${songTime._data.minutes}:${songTime._data.seconds}`}
-              </p>
+              <span ref={currentPlayingTime} id="current-playing-time2"></span>
+              <span id="song--duration"></span>
             </div>
           </div>
 
           <audio
-            onPlaying={timeCount}
+            onTimeUpdate={startSongTimeCount}
             ref={audioPlayer}
             loop={repeatMode === "repeatOne" ? true : false}
             id="audio--player"
@@ -484,7 +497,6 @@ const MusicApp = () => {
             onRateChange={() => console.log("onRateChange")}
             onEnded={() => {
               nextFunc();
-              clearInterval(timeCount);
             }}
           ></audio>
 
@@ -513,7 +525,9 @@ const MusicApp = () => {
               <button
                 ref={pauseBtn}
                 className="flex justify-center items-center w-16 h-16 rounded-full bg-white text-black  play-control"
-                onClick={playPauseFunc}
+                onClick={() => {
+                  playPauseFunc();
+                }}
               >
                 <IoPause className="" />
               </button>
@@ -538,7 +552,6 @@ const MusicApp = () => {
                   ? "repeatAll"
                   : ""
               }`}
-              ref={repeatBtn}
               onClick={handleSelectRepeat}
             >
               {repeatMode === "repeatOne" ? (
